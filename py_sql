@@ -45,22 +45,6 @@ def PY_SQL(filename, sql, header_opt, index_name):
         index_int = 0
     return rs[header_opt:,index_int:]
 
-# # function decorators
-# @xw.func(async_mode='threading')
-# @xw.arg('index',numbers=int)
-# @xw.ret(pd.DataFrame, header=False, index=False)
-# def IMPORTTABLE(url, index):
-# 	r = requests.get(url)
-# 	tables = pd.read_html(
-# 		io=r.text, 
-# 		encoding='utf-8', 
-# 		decimal=',',
-# 		thousands='.'
-# 	)
-# 	return tables[index]
-
-
-
 if __name__ == "__main__":
     xw.Book("PY_SQL.xlsm").set_mock_caller()
     main()
