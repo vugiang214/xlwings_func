@@ -1,0 +1,67 @@
+Tạo add in kết nối sql bằng xlwings
+import numpy as np
+import xlwings as xw
+import pyodbc
+import pandas as pd
+
+def main():
+    wb = xw.Book.caller()
+    sheet = wb.sheets[0]
+    if sheet["A1"].value == "Hello xlwings!":
+        sheet["A1"].value = "Bye xlwings!"
+    else:
+        sheet["A1"].value = "Hello xlwings!"
+
+
+@xw.func
+def hello(name):
+    return f"Hello {name}!"
+
+@xw.func(async_mode='threading')
+@xw.arg('header_opt',numbers=int)
+# def PY_SQL(filename, sql, header_option, index_option):
+def PY_SQL(filename, sql, header_opt, index_name):
+    connection_str = (r'DRIVER={Microsoft Excel Driver (*.xls, *.xlsx, *.xlsm, *.xlsb)};'
+                    r'DBQ=' + filename + ';'
+                    r'readonly=1')
+    connection_str = (r'DRIVER={Microsoft Excel Driver (*.xls, *.xlsx, *.xlsm, *.xlsb)};'
+                    r'DBQ=' + filename + ';'
+                    r'readonly=1')
+    conn = pyodbc.connect(connection_str, autocommit=True)
+    SQL_QUERY = pd.read_sql_query(sql, conn)
+    SQL_QUERY.index +=1
+    SQL_QUERY.insert(0,str(index_name),SQL_QUERY.index )
+    SQL_QUERY_header = SQL_QUERY.columns.to_numpy()
+    sql1 = SQL_QUERY.to_numpy()
+    rs = np.vstack((SQL_QUERY_header, sql1))
+
+    if header_opt == 1:
+        header_opt = 0
+    else:
+        header_opt = 1
+    if index_name is None:
+        index_int = 1
+    else:
+        index_int = 0
+    return rs[header_opt:,index_int:]
+
+# # function decorators
+# @xw.func(async_mode='threading')
+# @xw.arg('index',numbers=int)
+# @xw.ret(pd.DataFrame, header=False, index=False)
+# def IMPORTTABLE(url, index):
+# 	r = requests.get(url)
+# 	tables = pd.read_html(
+# 		io=r.text, 
+# 		encoding='utf-8', 
+# 		decimal=',',
+# 		thousands='.'
+# 	)
+# 	return tables[index]
+
+
+
+if __name__ == "__main__":
+    xw.Book("PY_SQL.xlsm").set_mock_caller()
+    main()
+import pandas
